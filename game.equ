@@ -1,0 +1,83 @@
+
+;--------------------------------------
+; Code equates
+;--------------------------------------
+
+L0100               = $0100
+
+LEVEL_TRANS_N       = $010C
+LEVEL_TRANS_E       = $010E
+LEVEL_TRANS_S       = $0110
+LEVEL_TRANS_W       = $0112
+LEVEL_TRANS_X       = $0114
+LEVEL_TRANS_Y       = $0115
+LEVEL_TRANS_TYPE    = $0116
+LEVEL_TRANS_MAP     = $0117
+
+SKIP_FRAME          = $0119
+
+RESTORE_KEY         = $011A
+RESTORE_COIN        = $011B
+
+LEVEL_HAS_KEY       = $011D
+KEY_POSX            = $011E
+KEY_POSY            = $011F
+
+CLOCK_PREV          = $0120
+
+ENEMY_POSX          = $0121
+ENEMY_POSY          = $0122
+ENEMY_DIR_X         = $0123
+ENEMY_DIR_Y         = $0124
+ENEMY_MOVE_INDEX    = $0125
+ENEMY_SPRITE        = $0126
+ENEMANIM_OFFSET     = $0127
+ENEMY_SPEED_RES     = $0128
+
+MENU_BTN_COUNT      = $0129
+WIN_COUNT           = $012A
+LIFE_GAIN           = $012B
+
+POSX                = $012C
+POSY                = $012D
+
+TILEX               = $012E
+TILEY               = $012F
+ONTILE              = $0130
+TILESPRITE          = $0131
+TILESPRITE_INDEX    = $0132
+TILESPRITE_ENABLE   = $0133
+
+PLAYER_SPRITE       = $0134
+PLAYANIM_OFFSET     = $0135
+PLAYER_DEATH        = $0136
+PLAYER_RESET_POSX   = $0137
+PLAYER_RESET_POSY   = $0138
+PLAYER_LIVES        = $0139
+
+DISABLE_JOYSTICK    = $013A
+
+PREV_MENU_SELECT    = $013B
+MENU_SELECTION      = $013C
+
+VBLANK_LOADED       = $013D
+VBLANK_SKIP         = $013E
+SCREEN_LOADED       = $013F
+
+LEVEL_TRANS_TX      = $0140
+LEVEL_TRANS_TY      = $0141
+
+RESTORE_DOOR        = $0142
+DOOR_OPENED         = $0143
+LEVEL_HAS_DOOR      = $0144
+
+L06AF               = $06AF
+
+GAME_SCREEN         = $4000
+MENU_SCREEN         = $4000
+ITEM_SCREEN         = $41E0
+PMG                 = $4400
+L4580               = $4580
+L4600               = $4600
+L4680               = $4680
+L4700               = $4700

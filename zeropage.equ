@@ -1,0 +1,47 @@
+
+;--------------------------------------
+; Zero-page equates
+;--------------------------------------
+
+TILEPTR             = $00C0             ; [word]
+TILESET_ADDRESS     = $00C2
+ITEMS               = $00C4
+PLAYER_SCORE        = $00C5             ; [word]
+DISPLAY_TYPE        = $00C7
+INTRO_POSITION      = $00C8
+GAMEOVER_POSITION   = $00C9
+LEVEL_MAP           = $00CA             ; [word]
+LEVEL_INTRO         = $00CC             ; [word]
+NEXT_LEVEL          = $00CE             ; [word]
+
+TMP0                = $00D0
+TMP1                = $00D1
+TMP2                = $00D2
+TMP3                = $00D3
+
+SOUND               = $00D4             ; [word]
+COUNTER             = $00D6             ; [word]
+INDEX               = $00D8             ; [word]
+SUSTAIN             = $00DA             ; [word]
+SILENCE             = $00DC             ; [word]
+CHANNEL             = $00DE             ; [word]
+
+BGM_COUNTER         = $00E0
+BGM_DATA_INDEX      = $00E1
+BGM_NOTE_SUSTAIN    = $00E2
+BGM_NOTE_SILENCE    = $00E3
+BGM_ENABLE          = $00E4
+BGM_ADDR            = $00E5             ; [word]
+
+SFX1                = $00E7
+SFX1_ADDR           = $00E8             ; [word]
+SFX1_COUNTER        = $00EA
+SFX1_DATA_INDEX     = $00EB
+
+SFX2                = $00EE
+SFX2_ADDR           = $00EF             ; [word]
+SFX2_COUNTER        = $00F1
+SFX2_DATA_INDEX     = $00F2
+
+LEVEL_ATTRS         = $00FD
+L00FF               = $00FF
