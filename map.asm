@@ -64,7 +64,7 @@ display_credits_map .proc
 ;======================================
 display_game_intro_map .proc
                 lda #$14
-                sta GPRIOR
+                ;!!sta GPRIOR
 
                 .mvx #$00,SCREEN_LOADED
 

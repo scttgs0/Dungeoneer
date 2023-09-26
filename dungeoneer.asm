@@ -1,10 +1,10 @@
 
-; Dungeoneer - A simple game in Atari 8-bit assembly
+; Dungeoneer - A simple game in 8-bit assembly
 
-                    .include "system_atari8.equ"
-                    .include "zeropage.equ"
-                    .include "game.equ"
-                    .include "dungeoneer.mac"
+                    .include "equates/system_f256.equ"
+                    .include "equates/zeropage.equ"
+                    .include "equates/game.equ"
+                    .include "macros/game.mac"
 
 
 ;--------------------------------------
@@ -35,8 +35,6 @@ _main           jsr sequence_sound_handler
                 jsr restore_coin_state
                 jsr restore_key_state
                 jsr check_enemy_player_collision
-
-                .mvx #$00,ATRACT
 
                 jmp _main
 

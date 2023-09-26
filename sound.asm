@@ -13,7 +13,7 @@ render_background_music
                 bcc _still_playing
 
                 lda #$00
-                sta AUDC4
+                ;!!sta AUDC4
 
 _still_playing  cpx BGM_NOTE_SILENCE
                 bcs _play_note
@@ -24,11 +24,11 @@ _play_note      .mvx #$00,BGM_COUNTER
 
                 ldy BGM_DATA_INDEX
                 lda (BGM_ADDR),Y
-                sta AUDF4
+                ;!!sta AUDF4
 
                 iny
                 lda (BGM_ADDR),Y
-                sta AUDC4
+                ;!!sta AUDC4
 
                 iny
                 lda (BGM_ADDR),Y
@@ -56,7 +56,7 @@ _XIT            rts
 stop_background_music
                 ldx #$00
                 stx BGM_ENABLE
-                stx AUDC4
+                ;!!stx AUDC4
 
                 rts
 
@@ -375,7 +375,7 @@ _XIT            rts
 ;
 ;======================================
 sequence_sound_handler
-                ldx RTCLOK+2
+                ;!!ldx RTCLOK+2
                 cpx CLOCK_PREV
                 beq _XIT
 

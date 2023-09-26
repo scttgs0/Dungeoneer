@@ -8,11 +8,11 @@ init_screen     .proc
                 ldy #$FF                ; count
 
                 ldx #$00
-                stx DINDEX
-                stx SAVMSC
+                ;!!stx DINDEX
+                ;!!stx SAVMSC
 
 _next1          dey
-                sta (SAVMSC),Y
+                ;!!sta (SAVMSC),Y
                 bne _next1
 
                 rts
@@ -25,16 +25,16 @@ _next1          dey
 ;======================================
 setup_colors    .proc
 ; 	character set colors
-                .mvx #$06,COLOR0
-                .mvx #$0A,COLOR1
-                .mvx #$24,COLOR2
-                .mvx #$C4,COLOR3
-                .mvx #$00,COLOR4
+                ;!!.mvx #$06,COLOR0
+                ;!!.mvx #$0A,COLOR1
+                ;!!.mvx #$24,COLOR2
+                ;!!.mvx #$C4,COLOR3
+                ;!!.mvx #$00,COLOR4
 
 ; 	player-PMG+$180 colors
-                .mvx #$80,PCOLR0
-                .mvx #$F2,PCOLR1
-                .mvx #$3C,PCOLR2
+                ;!!.mvx #$80,PCOLR0
+                ;!!.mvx #$F2,PCOLR1
+                ;!!.mvx #$3C,PCOLR2
 
                 rts
                 .endproc
@@ -43,25 +43,25 @@ setup_colors    .proc
 ;======================================
 ; changes tile colors
 ;======================================
-bump_colors     lda COLOR0
+bump_colors     ;!!lda COLOR0
                 clc
                 adc #$01
-                sta COLOR0
+                ;!!sta COLOR0
 
-                lda COLOR1
+                ;!!lda COLOR1
                 clc
                 adc #$01
-                sta COLOR1
+                ;!!sta COLOR1
 
-                lda COLOR3
+                ;!!lda COLOR3
                 clc
                 adc #$01
-                sta COLOR3
+                ;!!sta COLOR3
 
-                lda COLOR4
+                ;!!lda COLOR4
                 clc
                 adc #$01
-                sta COLOR4
+                ;!!sta COLOR4
 
                 rts
 
@@ -185,12 +185,12 @@ _limit          .byte $00
 ;======================================
 ; setup pmg
 ;======================================
-setup_pmg       .mvx #$44,PMBASE
+setup_pmg       ;!!.mvx #$44,PMBASE
 
-                .mvx #$2E,SDMCTL        ; double line resolution
-                .mvx #$03,GRACTL        ; enable PMG
-                .mvx #$11,GPRIOR        ; give players priority
-                .mvx #$00,SIZEM
+                ;!!.mvx #$2E,SDMCTL        ; double line resolution
+                ;!!.mvx #$03,GRACTL        ; enable PMG
+                ;!!.mvx #$11,GPRIOR        ; give players priority
+                ;!!.mvx #$00,SIZEM
 
                 rts
 
@@ -331,7 +331,7 @@ display_mainmenu
 
                 .mwx mainmenu_music,BGM_ADDR
 
-                .mvx #$01,AUDCTL
+                ;!!.mvx #$01,AUDCTL
 
                 jsr play_background_music
                 jsr setup_pmg
@@ -339,7 +339,7 @@ display_mainmenu
                 jsr setup_menu_tileset
                 jsr display_mainmenu_map
 
-                .mvx #$03,GRACTL
+                ;!!.mvx #$03,GRACTL
 
                 ldx #$00
                 stx DISPLAY_TYPE
@@ -362,7 +362,7 @@ display_howtoplay
                 jsr display_howtoplay_map
 
                 ldx #$03
-                stx GRACTL
+                ;!!stx GRACTL
                 stx MENU_SELECTION
 
                 ldx #$00
@@ -382,7 +382,7 @@ display_credits jsr stop_background_music
                 jsr display_credits_map
 
                 ldx #$03
-                stx GRACTL
+                ;!!stx GRACTL
                 stx MENU_SELECTION
 
                 ldx #$00
@@ -398,7 +398,7 @@ display_credits jsr stop_background_music
 display_game_intro
                 jsr stop_background_music
 
-                .mvx #$00,AUDCTL
+                ;!!.mvx #$00,AUDCTL
 
                 jsr play_background_music
                 jsr setup_menu_screen
@@ -438,7 +438,7 @@ new_game        ldx #$00
 ;======================================
 display_game    jsr stop_background_music
 
-                .mvx #$00,AUDCTL
+                ;!!.mvx #$00,AUDCTL
 
                 .mwx background_music,BGM_ADDR
                 jsr play_background_music
@@ -539,10 +539,10 @@ render_mainmenu ldx DISPLAY_TYPE
 _done           .mvx #$5A,POSX
 
                 ldx POSX
-                stx HPOSP0
-                stx HPOSP1
-                stx HPOSP2
-                stx HPOSP3
+                ;!!stx HPOSP0
+                ;!!stx HPOSP1
+                ;!!stx HPOSP2
+                ;!!stx HPOSP3
 
                 jsr clear_player_pmg
                 jsr draw_player
@@ -620,10 +620,10 @@ render_intro    ldx DISPLAY_TYPE
 
                 ldx INTRO_POSITION
                 stx POSX
-                stx HPOSP0
-                stx HPOSP1
-                stx HPOSP2
-                stx HPOSP3
+                ;!!stx HPOSP0
+                ;!!stx HPOSP1
+                ;!!stx HPOSP2
+                ;!!stx HPOSP3
 
                 inc INTRO_POSITION
 

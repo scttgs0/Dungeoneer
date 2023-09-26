@@ -362,9 +362,9 @@ reset_player    .proc
 
                 ldx PLAYER_RESET_POSX
                 stx POSX
-                stx HPOSP0
-                stx HPOSP1
-                stx HPOSP2
+                ;!!stx HPOSP0
+                ;!!stx HPOSP1
+                ;!!stx HPOSP2
 
                 jsr clear_player_pmg
 

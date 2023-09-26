@@ -4,7 +4,7 @@
 ;======================================
 setup_tileset   .mvx #$50,TILESET_ADDRESS
 
-                .mvx TILESET_ADDRESS,CHBAS
+                ;!!.mvx TILESET_ADDRESS,CHBAS
 
                 rts
 
@@ -15,7 +15,7 @@ setup_tileset   .mvx #$50,TILESET_ADDRESS
 setup_menu_tileset
                 .mvx #$5C,TILESET_ADDRESS
 
-                .mvx TILESET_ADDRESS,CHBAS
+                ;!!.mvx TILESET_ADDRESS,CHBAS
 
                 rts
 
@@ -40,20 +40,20 @@ animate_tilesprite
                 iny
                 sty TILESPRITE_INDEX
 
-                lda CHBAS
+                ;!!lda CHBAS
                 clc
                 adc #$04
-                sta CHBAS
+                ;!!sta CHBAS
 
                 cpy #$03
                 beq _1
 
-                sta CHBAS
+                ;!!sta CHBAS
 
                 jmp _XIT
 
 _1              lda TILESET_ADDRESS
-                sta CHBAS
+                ;!!sta CHBAS
 
                 lda #$00
                 sta TILESPRITE_INDEX
@@ -426,10 +426,10 @@ tile_is_wall_pasthrough
                 beq _1
                 bne _2
 
-_1              .mvx #$18,GPRIOR
+_1              ;!!.mvx #$18,GPRIOR
                 jmp _XIT
 
-_2              .mvx #$11,GPRIOR
+_2              ;!!.mvx #$11,GPRIOR
                 jmp _XIT
 
 _XIT            rts
@@ -759,9 +759,7 @@ peek_enemy_dy   .byte $00
 ;======================================
 enable_tilesprite_animation
                 .mvx #$FF,TILESPRITE
-
                 .mvx #$00,TILESPRITE_INDEX
-
                 .mvx #$01,TILESPRITE_ENABLE
 
                 rts

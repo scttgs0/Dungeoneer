@@ -6,7 +6,7 @@ enable_interrupts
                 ldy #<vvblkd_interrupt
                 ldx #>vvblkd_interrupt
                 lda #$07
-                jsr SETVBV
+                ;!!jsr SETVBV
 
 
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,7 +15,7 @@ enable_interrupts
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ;~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 vvblkd_interrupt .proc
-                .mwx vvblkd_init,VVBLKD
+                ;!!.mwx vvblkd_init,VVBLKD
                 rts
                 .endproc
 
@@ -29,12 +29,12 @@ vvblkd_init     .proc
                 pha
 
                 .mvx #$01,VBLANK_LOADED
-                .mwx vvblkd_chain,VVBLKD
+                ;!!.mwx vvblkd_chain,VVBLKD
 
                 pla
                 tax
                 pla
-                jmp XITVBV
+                ;!!jmp XITVBV
 
                 .endproc
 
@@ -81,6 +81,6 @@ _XIT            pla
                 pla
                 tax
                 pla
-                jmp XITVBV
+                ;!!jmp XITVBV
 
                 .endproc

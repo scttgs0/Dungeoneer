@@ -333,19 +333,19 @@ check_enemy_player_collision .proc
                 cpx #$00
                 bne _reset
 
-                ldx M0PL
+                ;!!ldx M0PL
                 cpx #$00
                 bne _dead
 
-                ldx M1PL
+                ;!!ldx M1PL
                 cpx #$00
                 bne _dead
 
-                ldx M2PL
+                ;!!ldx M2PL
                 cpx #$00
                 bne _dead
 
-                ldx M3PL
+                ;!!ldx M3PL
                 cpx #$00
                 bne _dead
 
@@ -353,7 +353,7 @@ check_enemy_player_collision .proc
 
 _dead           jsr player_died
 
-_reset          .mvx #$00,HITCLR
+_reset          ;!!.mvx #$00,HITCLR
 
                 rts
                 .endproc
