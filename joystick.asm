@@ -119,7 +119,7 @@ can_move_up     .proc
 ; move player
                 dec POSY
 
-                jsr clear_player_vertical
+                ;;obsolete jsr clear_player_vertical
                 jsr tile_is_wall_pasthrough
 
 _XIT            rts
@@ -162,7 +162,7 @@ can_move_down   .proc
 ; move player
                 inc POSY
 
-                jsr clear_player_vertical
+                ;;obsolete jsr clear_player_vertical
                 jsr tile_is_wall_pasthrough
 
 _XIT            rts
@@ -231,10 +231,10 @@ _post_move      jsr pickup_item
                 jmp _XIT
 
 _store_posx     ldx POSX
-                stx HPOSP0
-                stx HPOSP1
-                stx HPOSP2
-                stx HPOSP3
+                stx SPR(sprite_t.X,0)
+                stx SPR(sprite_t.X,1)
+                stx SPR(sprite_t.X,2)
+                stx SPR(sprite_t.X,3)
                 jmp _post_move
 
 _XIT            rts
@@ -362,11 +362,12 @@ reset_player    .proc
 
                 ldx PLAYER_RESET_POSX
                 stx POSX
-                ;!!stx HPOSP0
-                ;!!stx HPOSP1
-                ;!!stx HPOSP2
 
-                jsr clear_player_pmg
+                stx SPR(sprite_t.X,0)
+                stx SPR(sprite_t.X,1)
+                stx SPR(sprite_t.X,2)
+
+                ;;obsolete jsr clear_player_pmg
 
                 rts
                 .endproc

@@ -48,28 +48,31 @@ RandomSeed      .proc
                 lda RND_MIN
                 asl
                 asl
-                pha
-                asl
-                pha
-                asl
-                pha
-                asl
-                sta RND_RESULT      ; *32
+                pha                     ; preserve *4
 
-                pla
-                clc
-                adc RND_RESULT      ; *16
-                sta RND_RESULT
+                asl
+                pha                     ; preserve *8
 
-                pla
-                clc
-                adc RND_RESULT      ; *8
-                sta RND_RESULT
+                asl
+                pha                     ; preserve *16
 
-                pla
+                asl
+                sta RND_RESULT          ; = *32
+
+                pla                     ; restore *16
                 clc
-                adc RND_RESULT      ; *4
-                sta RND_RESULT
+                adc RND_RESULT
+                sta RND_RESULT          ; = *48
+
+                pla                     ; restore *8
+                clc
+                adc RND_RESULT
+                sta RND_RESULT          ; = *56
+
+                pla                     ; restore *4
+                clc
+                adc RND_RESULT
+                sta RND_RESULT          ; = *60
 
 ;   add the elapsed seconds
                 clc
@@ -97,10 +100,11 @@ Bcd2Bin         .proc
 
 ;   upper-nibble * 10
                 lsr
-                pha                     ; n*2
+                pha                     ; preserve /2
+
                 lsr
-                lsr                     ; n*8
-                sta zpTemp1
+                lsr
+                sta zpTemp1             ; = n/8
 
                 pla                     ; A=n*2
                 clc
@@ -275,12 +279,8 @@ InitSprites     .proc
                 stz IOPAGE_CTRL
 
 ;   set player sprites (sprite-00 & sprint-01)
-                .frsSpriteInit SPR_Balloon, scEnable|scLUT0|scDEPTH0|scSIZE_16, 0
-                .frsSpriteInit SPR_Balloon, scEnable|scLUT1|scDEPTH0|scSIZE_16, 1
-
-;   set bomb sprites (sprite-02 & sprint-03)
-                .frsSpriteInit SPR_Bomb, scEnable|scLUT0|scDEPTH0|scSIZE_16, 2
-                .frsSpriteInit SPR_Bomb, scEnable|scLUT0|scDEPTH0|scSIZE_16, 3
+                .frsSpriteInit player_data, scEnable|scLUT0|scDEPTH0|scSIZE_16, 0
+                .frsSpriteInit enemy_data, scEnable|scLUT0|scDEPTH0|scSIZE_16, 1
 
                 pla
                 rts
@@ -511,7 +511,7 @@ _space          sta CS_TEXT_MEM_PTR+v_RenderLine,X
 ;   (ascii-30)*2+$A0
 _number         sec
                 sbc #$30
-                asl
+                asl                     ; *2
 
                 clc
                 adc #$A0

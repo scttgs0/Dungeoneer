@@ -223,7 +223,7 @@ transition_map_handler
                 stx ENEMY_POSY
                 stx SCREEN_LOADED
 
-                jsr clear_enemy_pmg
+                ;;obsolete jsr clear_enemy_pmg
                 jsr display_game_map
                 jsr setup_player_trans
                 jsr reset_player

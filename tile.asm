@@ -99,8 +99,8 @@ _2              ldy TILEX
 store_tilex     lda POSX
                 sec
                 sbc #$30
-                lsr A
-                lsr A
+                lsr                     ; /4
+                lsr
                 sta TILEX
 
                 rts
@@ -112,9 +112,9 @@ store_tilex     lda POSX
 store_tiley     lda POSY
                 sec
                 sbc #$18
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /8
+                lsr
+                lsr
                 sta TILEY
 
                 rts
@@ -127,8 +127,8 @@ store_enemy_tilex
                 lda ENEMY_POSX
                 sec
                 sbc #$30
-                lsr A
-                lsr A
+                lsr                     ; /4
+                lsr
                 sta TILEX
 
                 rts
@@ -141,9 +141,9 @@ store_enemy_tiley
                 lda ENEMY_POSY
                 sec
                 sbc #$18
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /8
+                lsr
+                lsr
                 sta TILEY
 
                 rts

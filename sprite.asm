@@ -68,6 +68,7 @@ bump_colors     ;!!lda COLOR0
 
 ;======================================
 ; clear player pmg
+; (obsolete)
 ;======================================
 clear_player_pmg
                 ldx #$80
@@ -84,6 +85,7 @@ _next1          dex
 
 ;======================================
 ; clear enemy pmg
+; (obsolete)
 ;======================================
 clear_enemy_pmg ldx #$80
                 lda #$00
@@ -98,7 +100,7 @@ _next1          dex
 ;======================================
 ; clears the current screen
 ;======================================
-L24D8           lda #$00
+clear_screen    lda #$00
                 ldy #$F0
 
 _next1          dey
@@ -110,42 +112,46 @@ _next1          dey
 
 
 ;======================================
-; clear enemy vertical repaint
+; clear enemy vertical for repaint
+; (obsolete)
 ;======================================
 clear_enemy_vertical
 ;   clear top and bottom enemy row
                 lda ENEMY_POSY
                 tay
-                dey
-                clc
-                adc #$08
+                dey                     ; Y=top row
 
+                clc                     ; X=bottom row
+                adc #$08
                 tax
+
                 lda #$00
-                sta PMG+$180,X
-                sta PMG+$180,Y
+                sta PMG+$180,X          ; erase bottom row
+                sta PMG+$180,Y          ; erase top row
 
                 rts
 
 
 ;======================================
-; clear player vertical repaint
+; clear player vertical for repaint
+; (obsolete)
 ;======================================
 clear_player_vertical
 ;   clear top and bottom player row
                 lda POSY
                 tay
-                dey
-                clc
-                adc #$08
+                dey                     ; Y=top row
 
+                clc                     ; X=bottom row
+                adc #$08
                 tax
+
                 lda #$00
-                sta PMG+$200,X
+                sta PMG+$200,X          ; erase bottom row
                 sta PMG+$280,X
                 sta PMG+$300,X
 
-                sta PMG+$200,Y
+                sta PMG+$200,Y          ; erase top row
                 sta PMG+$280,Y
                 sta PMG+$300,Y
 
@@ -155,44 +161,15 @@ clear_player_vertical
 ;======================================
 ; draw player
 ;======================================
-draw_player     ldx PLAYANIM_OFFSET
-                txa
-                clc
-                adc #$08
-                sta _limit
+draw_player     .proc
+;   load animation frame
+                .mvx PLAYANIM_OFFSET,SPR(sprite_t.ADDR+1, 0)
 
-                ldy POSY
-_next1          lda player_data,X
-                sta PMG+$200,Y
-                lda player_data+8,X
-                sta PMG+$280,Y
-                lda player_data+16,X
-                sta PMG+$300,Y
-
-                iny
-                inx
-                txa
-                cmp _limit
-                bne _next1
+;   set Y position of player
+                .mvx POSY,SPR(sprite_t.Y, 0)
 
                 rts
-
-;--------------------------------------
-
-_limit          .byte $00
-
-
-;======================================
-; setup pmg
-;======================================
-setup_pmg       ;!!.mvx #$44,PMBASE
-
-                ;!!.mvx #$2E,SDMCTL        ; double line resolution
-                ;!!.mvx #$03,GRACTL        ; enable PMG
-                ;!!.mvx #$11,GPRIOR        ; give players priority
-                ;!!.mvx #$00,SIZEM
-
-                rts
+                .endproc
 
 
 ;======================================
@@ -334,7 +311,7 @@ display_mainmenu
                 ;!!.mvx #$01,AUDCTL
 
                 jsr play_background_music
-                jsr setup_pmg
+                jsr InitSprites
                 jsr setup_mainmenu_screen
                 jsr setup_menu_tileset
                 jsr display_mainmenu_map
@@ -356,7 +333,7 @@ display_mainmenu
 ;======================================
 display_howtoplay
                 jsr stop_background_music
-                jsr setup_pmg
+                jsr InitSprites
                 jsr setup_menu_screen
                 jsr setup_menu_tileset
                 jsr display_howtoplay_map
@@ -376,7 +353,7 @@ display_howtoplay
 ; displays the credits screen
 ;======================================
 display_credits jsr stop_background_music
-                jsr setup_pmg
+                jsr InitSprites
                 jsr setup_menu_screen
                 jsr setup_menu_tileset
                 jsr display_credits_map
@@ -409,7 +386,7 @@ display_game_intro
                 .mvx #$32,INTRO_POSITION
                 .mvx #$30,POSY
 
-                jsr clear_player_pmg
+                ;;obsolete jsr clear_player_pmg
 
                 rts
 
@@ -445,7 +422,7 @@ display_game    jsr stop_background_music
 
                 jsr setup_game_screen
                 jsr setup_tileset
-                jsr setup_pmg
+                jsr InitSprites
 
                 jsr display_screen_items
                 jsr display_win_count
@@ -473,7 +450,7 @@ display_game    jsr stop_background_music
 ;======================================
 display_gameover
                 jsr setup_colors
-                jsr clear_player_pmg
+                ;;obsolete jsr clear_player_pmg
                 jsr setup_menu_screen
                 jsr setup_menu_tileset
 
@@ -539,12 +516,12 @@ render_mainmenu ldx DISPLAY_TYPE
 _done           .mvx #$5A,POSX
 
                 ldx POSX
-                ;!!stx HPOSP0
-                ;!!stx HPOSP1
-                ;!!stx HPOSP2
-                ;!!stx HPOSP3
+                stx SPR(sprite_t.X,0)
+                stx SPR(sprite_t.X,1)
+                stx SPR(sprite_t.X,2)
+                stx SPR(sprite_t.X,3)
 
-                jsr clear_player_pmg
+                ;;obsolete jsr clear_player_pmg
                 jsr draw_player
 
 _XIT1           rts
@@ -620,14 +597,14 @@ render_intro    ldx DISPLAY_TYPE
 
                 ldx INTRO_POSITION
                 stx POSX
-                ;!!stx HPOSP0
-                ;!!stx HPOSP1
-                ;!!stx HPOSP2
-                ;!!stx HPOSP3
+                stx SPR(sprite_t.X,0)
+                stx SPR(sprite_t.X,1)
+                stx SPR(sprite_t.X,2)
+                stx SPR(sprite_t.X,3)
 
                 inc INTRO_POSITION
 
-                jsr clear_player_pmg
+                ;;obsolete jsr clear_player_pmg
                 jsr draw_player
                 jsr animate_player_right
 
@@ -719,7 +696,7 @@ _check          lda #$60
 ;   complete player death
                 jsr check_game_over
                 jsr reset_player
-                jsr clear_player_pmg
+                ;;obsolete jsr clear_player_pmg
 
                 .mvx #$00,PLAYER_DEATH
 

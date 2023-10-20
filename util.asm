@@ -45,8 +45,8 @@ _high           .byte $00,$00
 ; in pixels
 ;======================================
 tilex_to_posx   lda TILEX
-                asl A
-                asl A
+                asl                     ; *4
+                asl
                 clc
                 adc #$30
 
@@ -59,8 +59,8 @@ tilex_to_posx   lda TILEX
 posx_to_tilex   lda POSX
                 sec
                 sbc #$30
-                lsr A
-                lsr A
+                lsr                     ; /4
+                lsr
 
                 rts
 
@@ -70,9 +70,9 @@ posx_to_tilex   lda POSX
 ; in pixels
 ;======================================
 tiley_to_posy   lda TILEY
-                asl A
-                asl A
-                asl A
+                asl                     ; *8
+                asl
+                asl
                 clc
                 adc #$18
 
@@ -85,9 +85,9 @@ tiley_to_posy   lda TILEY
 posy_to_tiley   lda POSY
                 sec
                 sbc #$18
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /8
+                lsr
+                lsr
 
                 rts
 

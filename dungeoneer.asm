@@ -4,6 +4,8 @@
                     .include "equates/system_f256.equ"
                     .include "equates/zeropage.equ"
                     .include "equates/game.equ"
+
+                    .include "macros/frs_jr_sprite.mac"
                     .include "macros/game.mac"
 
 
@@ -19,7 +21,7 @@ START
                 jsr init_screen
                 jsr setup_colors
                 jsr enable_interrupts
-                jsr setup_pmg
+                jsr InitSprites
 
 ;   delay initialization until after first vblank
 _delay1         ldx VBLANK_LOADED
@@ -42,6 +44,7 @@ _main           jsr sequence_sound_handler
 ;--------------------------------------
 ;--------------------------------------
 
+                .include "platform_f256jr.asm"
                 .include "dlist.asm"
 
 
@@ -51,7 +54,7 @@ _main           jsr sequence_sound_handler
 ;--------------------------------------
 
                 .include "level.asm"
-                .include "pmg.asm"
+                .include "sprite.asm"
                 .include "enemy.asm"
                 .include "joystick.asm"
                 .include "util.asm"
@@ -61,6 +64,12 @@ _main           jsr sequence_sound_handler
                 .include "map.asm"
                 .include "transition.asm"
                 .include "tile.asm"
+
+
+;--------------------------------------
+;--------------------------------------
+                .align $100
+;--------------------------------------
 
                 .include "data/player.inc"
                 .include "data/enemy.inc"

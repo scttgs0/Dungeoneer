@@ -175,10 +175,10 @@ L2F11           lda PLAYER_SCORE,X
 ;   get upper nibble (NX)
                 lda PLAYER_SCORE,X
                 and #$F0
-                lsr A                   ; /16
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /16
+                lsr
+                lsr
+                lsr
                 jsr display_number
 
                 inx
@@ -193,7 +193,7 @@ L2F11           lda PLAYER_SCORE,X
 ;
 ;======================================
 display_number  .proc
-                asl A
+                asl                     ; *2
                 clc
                 adc #$61               ; add display number offset
                 sta ITEM_SCREEN,Y
@@ -291,19 +291,19 @@ _done           lda PLAYER_SCORE,Y
 add_upper_nibble .proc
 ; store higher nibble of score (NX)
                 and #$F0
-                lsr A                   ; /16
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /16
+                lsr
+                lsr
+                lsr
                 sta item_nibble
 
 ; check high nibble for overflow (ONX)
                 lda item_lbyte,Y
                 and #$F0
-                lsr A                   ; /16
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /16
+                lsr
+                lsr
+                lsr
 
                 clc
                 adc item_carry
@@ -335,10 +335,10 @@ _done           lda PLAYER_SCORE,Y
                 sta item_temp
 
                 lda item_nibble
-                asl A                   ; *16
-                asl A
-                asl A
-                asl A
+                asl                     ; *16
+                asl
+                asl
+                asl
                 ora item_temp
                 sta PLAYER_SCORE,Y
 
@@ -497,7 +497,7 @@ remove_playfield_item .proc
                 sta (TILEPTR),Y
 
                 txa
-                lsr A
+                lsr                     ; /2
                 bcc _1
 
 ; determine which direction the other tile is in
@@ -540,7 +540,7 @@ _next1          .mva gib_item_tile_LO,between._setLow+1
 
 ; if not, shift left increase address and continue
                 lda gib_bit
-                asl A
+                asl
                 sta gib_bit
 
                 lda gib_item_tile_LO

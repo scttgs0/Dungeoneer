@@ -2,7 +2,7 @@
 ;======================================
 ; combining 4 missiles into player 5
 ;======================================
-draw_enemy      .proc
+draw_enemy      .proc   ;;TODO: change animation frame
 ;   load animation offset and set limit
                 ldx ENEMANIM_OFFSET
                 txa
@@ -107,7 +107,7 @@ _init           ldx #$00
 
                 jmp _setup
 
-_hide_enemy     jsr clear_enemy_pmg
+_hide_enemy     ;;obsolete jsr clear_enemy_pmg
 
                 ldx #$00
                 stx ENEMY_POSX
@@ -149,7 +149,7 @@ _move           .mvx #$00,ENEMY_MOVE_INDEX
                 sta ENEMY_POSY
 
                 jsr update_enemy_posx
-                jsr clear_enemy_vertical
+                ;;obsolete jsr clear_enemy_vertical
                 jsr draw_enemy
                 jmp _XIT
 
@@ -172,12 +172,12 @@ enemy_choose_direction .proc
                 bne _XIT
 
                 lda RANDOM
-                lsr A                   ; /64
-                lsr A
-                lsr A
-                lsr A
-                lsr A
-                lsr A
+                lsr                     ; /64
+                lsr
+                lsr
+                lsr
+                lsr
+                lsr
 
 _move_north     cmp #$00
                 bne _move_east

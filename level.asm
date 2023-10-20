@@ -552,7 +552,7 @@ exit_level      .proc
                 jmp _XIT
 
 _1              jsr play_exit_level_sound
-                jsr L24D8
+                jsr clear_screen
                 jmp (NEXT_LEVEL)
 
 _XIT            rts
