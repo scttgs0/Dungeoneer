@@ -5,7 +5,7 @@
                     .include "equates/zeropage.equ"
                     .include "equates/game.equ"
 
-                    .include "macros/frs_jr_sprite.mac"
+                    .include "macros/f256_sprite.mac"
                     .include "macros/game.mac"
 
 
@@ -44,7 +44,7 @@ _main           jsr sequence_sound_handler
 ;--------------------------------------
 ;--------------------------------------
 
-                .include "platform_f256jr.asm"
+                .include "platform_f256.asm"
                 .include "dlist.asm"
 
 

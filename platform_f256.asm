@@ -1,5 +1,5 @@
 
-; SPDX-FileName: platform_f256jr.asm
+; SPDX-FileName: platform_f256.asm
 ; SPDX-FileCopyrightText: Copyright 2023, Scott Giese
 ; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -12,6 +12,13 @@
 RandomSeedQuick .proc
                 pha
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
+;   switch to system map
+                stz IOPAGE_CTRL
+
                 lda RTC_MIN
                 sta RNG_SEED+1
 
@@ -22,6 +29,10 @@ RandomSeedQuick .proc
                 sta RNG_CTRL
                 lda #rcEnable
                 sta RNG_CTRL
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 pla
                 rts
@@ -36,6 +47,13 @@ RandomSeedQuick .proc
 RandomSeed      .proc
                 pha
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
+;   switch to system map
+                stz IOPAGE_CTRL
+
                 lda RTC_MIN
                 jsr Bcd2Bin
                 sta RND_MIN
@@ -48,31 +66,28 @@ RandomSeed      .proc
                 lda RND_MIN
                 asl
                 asl
-                pha                     ; preserve *4
-
+                pha
                 asl
-                pha                     ; preserve *8
-
+                pha
                 asl
-                pha                     ; preserve *16
-
+                pha
                 asl
-                sta RND_RESULT          ; = *32
+                sta RND_RESULT      ; *32
 
-                pla                     ; restore *16
+                pla
                 clc
-                adc RND_RESULT
-                sta RND_RESULT          ; = *48
+                adc RND_RESULT      ; *16
+                sta RND_RESULT
 
-                pla                     ; restore *8
+                pla
                 clc
-                adc RND_RESULT
-                sta RND_RESULT          ; = *56
+                adc RND_RESULT      ; *8
+                sta RND_RESULT
 
-                pla                     ; restore *4
+                pla
                 clc
-                adc RND_RESULT
-                sta RND_RESULT          ; = *60
+                adc RND_RESULT      ; *4
+                sta RND_RESULT
 
 ;   add the elapsed seconds
                 clc
@@ -87,6 +102,10 @@ RandomSeed      .proc
                 lda #rcEnable
                 sta RNG_CTRL
 
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
+
                 pla
                 rts
                 .endproc
@@ -100,11 +119,10 @@ Bcd2Bin         .proc
 
 ;   upper-nibble * 10
                 lsr
-                pha                     ; preserve /2
-
+                pha                     ; n*2
                 lsr
-                lsr
-                sta zpTemp1             ; = n/8
+                lsr                     ; n*8
+                sta zpTemp1
 
                 pla                     ; A=n*2
                 clc
@@ -129,6 +147,13 @@ InitSID         .proc
                 pha
                 phx
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
+;   switch to system map
+                stz IOPAGE_CTRL
+
                 lda #0                  ; reset the SID registers
                 ldx #$1F
 _next1          sta SID1_BASE,X
@@ -137,26 +162,31 @@ _next1          sta SID1_BASE,X
                 dex
                 bpl _next1
 
-                lda #$09                ; Attack/Decay = 9
+                lda #sidAttack2ms|sidDecay750ms
                 sta SID1_ATDCY1
                 sta SID1_ATDCY2
                 sta SID1_ATDCY3
                 sta SID2_ATDCY1
 
+                ; 0%|sidDecay6ms
                 stz SID1_SUREL1         ; Susatain/Release = 0 [square wave]
                 stz SID1_SUREL2
                 stz SID1_SUREL3
                 stz SID2_SUREL1
 
-                ;lda #$21
-                ;sta SID1_CTRL1
-                ;sta SID1_CTRL2
-                ;sta SID1_CTRL3
-                ;sta SID2_CTRL1
+                lda #sidcSaw|sidcGate
+                sta SID1_CTRL1
+                sta SID1_CTRL2
+                sta SID1_CTRL3
+                sta SID2_CTRL1
 
                 lda #$08                ; Volume = 8 (mid-range)
                 sta SID1_SIGVOL
                 sta SID2_SIGVOL
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 plx
                 pla
@@ -173,6 +203,13 @@ InitPSG         .proc
                 pha
                 phx
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
+;   switch to system map
+                stz IOPAGE_CTRL
+
                 lda #0                  ; reset the PSG registers
                 ldx #$07
 _next1          sta PSG1_BASE,X
@@ -180,6 +217,10 @@ _next1          sta PSG1_BASE,X
 
                 dex
                 bpl _next1
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 plx
                 pla
@@ -196,6 +237,10 @@ InitTextPalette .proc
                 pha
                 phy
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to system map
                 stz IOPAGE_CTRL
 
@@ -206,6 +251,10 @@ _next1          lda _Text_CLUT,Y
 
                 dey
                 bpl _next1
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 ply
                 pla
@@ -242,6 +291,10 @@ InitGfxPalette  .proc
                 pha
                 phy
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to graphic map
                 lda #$01
                 sta IOPAGE_CTRL
@@ -256,10 +309,69 @@ _next1          lda Palette,Y
                 dey
                 bpl _next1
 
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
+
+                ply
+                pla
+                rts
+                .endproc
+
+
+;======================================
+; Load the pixel data for the tiles
+; into video memory.
+; Set it up for tile set 0
+;======================================
+InitTiles       .proc
+                pha
+
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to system map
                 stz IOPAGE_CTRL
 
-                ply
+                lda #<tiles             ; Set the source address
+                sta TILESET0_ADDR
+                lda #>tiles
+                sta TILESET0_ADDR+1
+                lda #`tiles
+                sta TILESET0_ADDR+2
+
+;   enable the tileset, use 8x256 pixel source data layout
+                lda #tsVertical
+                sta TILESET0_ADDR_CFG
+
+                lda #<worldmap          ; Set the source address
+                sta TILE0_ADDR
+                lda #>worldmap
+                sta TILE0_ADDR+1
+                lda #`worldmap
+                sta TILE0_ADDR+2
+
+                lda #40                ; Set the size of the tile map to 256x256
+                sta TILE0_SIZE_X
+                lda #30
+                sta TILE0_SIZE_Y
+
+                stz TILE0_SCROLL_X
+                stz TILE0_SCROLL_Y
+
+;   enable the tilema, puse 8x8 pixel tiles
+                lda #tcEnable|tcSmallTiles
+                sta TILE0_CTRL
+
+;   enable tiles on layer 0
+                lda #locLayer0_TL0
+                sta LAYER_ORDER_CTRL_0
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
+
                 pla
                 rts
                 .endproc
@@ -275,12 +387,20 @@ _next1          lda Palette,Y
 InitSprites     .proc
                 pha
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to system map
                 stz IOPAGE_CTRL
 
 ;   set player sprites (sprite-00 & sprint-01)
                 .frsSpriteInit player_data, scEnable|scLUT0|scDEPTH0|scSIZE_16, 0
                 .frsSpriteInit enemy_data, scEnable|scLUT0|scDEPTH0|scSIZE_16, 1
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 pla
                 rts
@@ -289,83 +409,34 @@ InitSprites     .proc
 
 ;======================================
 ;
-;--------------------------------------
-; preserve      A, X, Y
 ;======================================
-CheckCollision  .proc
+InitBitmap      .proc
                 pha
-                phx
-                phy
 
-                ldx #1                  ; Given: SP02_Y=112
-_nextBomb       lda zpBombDrop,X        ; A=112
-                beq _nextPlayer
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
 
-                cmp #132
-                bcs _withinRange
-                bra _nextPlayer
+;   switch to system map
+                stz IOPAGE_CTRL
 
-_withinRange    sec
-                sbc #132                ; A=8
-                lsr             ; /2    ; A=4
-                lsr             ; /4    ; A=2
-                lsr             ; /8    ; A=1
-                sta zpTemp1             ; zpTemp1=1 (row)
+                ;!!lda #<ScreenRAM         ; Set the destination address
+                sta BITMAP2_ADDR
+                ;!!lda #>ScreenRAM
+                sta BITMAP2_ADDR+1
+                ;!!lda #`ScreenRAM
+                sta BITMAP2_ADDR+2
 
-                lda PlayerPosX,X
-                lsr             ; /4
-                lsr
-                sta zpTemp2             ; (column)
+                lda #bmcEnable|bmcLUT0
+                sta BITMAP2_CTRL
 
-                lda #<CANYON
-                sta zpSource
-                lda #>CANYON
-                sta zpSource+1
+                lda #locLayer2_BM2
+                sta LAYER_ORDER_CTRL_1
 
-                ldy zpTemp1
-_nextRow        beq _checkRock
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
-                lda zpSource
-                clc
-                adc #40
-                sta zpSource
-                bcc _1
-
-                inc zpSource+1
-
-_1              dey
-                bra _nextRow
-
-_checkRock      ldy zpTemp2
-                lda (zpSource),Y
-                beq _nextPlayer
-
-                cmp #4
-                bcs _nextPlayer
-
-                sta P2PF,X
-
-                stz zpTemp1
-                txa
-                asl                     ; *2
-                rol zpTemp1
-                tay
-
-                lda zpSource
-                stz zpTemp2+1
-                clc
-                adc zpTemp2
-                sta P2PFaddr,Y          ; low-byte
-
-                lda zpSource+1
-                adc #$00
-                sta P2PFaddr+1,Y        ; high-byte
-
-_nextPlayer     dex
-                bpl _nextBomb
-
-                ply
-                plx
                 pla
                 rts
                 .endproc
@@ -387,6 +458,10 @@ v_TextColor     .var $40
                 pha
                 phx
                 phy
+
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
 
 ;   switch to color map
                 lda #iopPage3
@@ -435,8 +510,9 @@ _nextByteT      sta (zpDest),Y
                 dex
                 bne _nextPageT
 
-;   switch to system map
-                stz IOPAGE_CTRL
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 ply
                 plx
@@ -446,7 +522,7 @@ _nextByteT      sta (zpDest),Y
 
 
 ;======================================
-; Render Player Scores & Bombs
+; Render Debug Info
 ;--------------------------------------
 ; preserve      A, X, Y
 ;======================================
@@ -457,6 +533,10 @@ v_RenderLine    .var 0*CharResX
                 pha
                 phx
                 phy
+
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
 
 ;   switch to color map
                 lda #iopPage3
@@ -511,7 +591,7 @@ _space          sta CS_TEXT_MEM_PTR+v_RenderLine,X
 ;   (ascii-30)*2+$A0
 _number         sec
                 sbc #$30
-                asl                     ; *2
+                asl
 
                 clc
                 adc #$A0
@@ -538,8 +618,9 @@ _bomb           sta CS_TEXT_MEM_PTR+v_RenderLine,X
                 bra _nextChar
 
 _XIT
-;   switch to system map
-                stz IOPAGE_CTRL
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 ply
                 plx
@@ -560,13 +641,24 @@ _XIT
 InitCPUVectors  .proc
                 pha
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to system map
                 stz IOPAGE_CTRL
+
+                sei
 
                 lda #<DefaultHandler
                 sta vecABORT
                 lda #>DefaultHandler
                 sta vecABORT+1
+
+                lda #<DefaultHandler
+                sta vecNMI
+                lda #>DefaultHandler
+                sta vecNMI+1
 
                 lda #<BOOT
                 sta vecRESET
@@ -577,6 +669,12 @@ InitCPUVectors  .proc
                 sta vecIRQ_BRK
                 lda #>DefaultHandler
                 sta vecIRQ_BRK+1
+
+                cli
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
                 pla
                 rts
@@ -602,10 +700,14 @@ DefaultHandler  rti
 InitMMU         .proc
                 pha
 
-;   switch to system map
+;   preserve IOPAGE control
                 lda IOPAGE_CTRL
-                pha                     ; preserve
+                pha
+
+;   switch to system map
                 stz IOPAGE_CTRL
+
+                sei
 
 ;   ensure edit mode
                 lda MMU_CTRL
@@ -631,11 +733,13 @@ InitMMU         .proc
                 sta MMU_Block7
 
 ;   restore MMU control
-                pla                     ; restore
+                pla
                 sta MMU_CTRL
 
+                cli
+
 ;   restore IOPAGE control
-                pla                     ; restore
+                pla
                 sta IOPAGE_CTRL
 
                 pla
@@ -654,8 +758,14 @@ InitMMU         .proc
 InitIRQs        .proc
                 pha
 
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
 ;   switch to system map
                 stz IOPAGE_CTRL
+
+                sei                     ; disable IRQ
 
 ;   enable IRQ handler
                 ; lda #<vecIRQ_BRK
@@ -663,9 +773,9 @@ InitIRQs        .proc
                 ; lda #>vecIRQ_BRK
                 ; sta IRQ_PRIOR+1
 
-                lda #<HandleIrq
+                lda #<irqMain
                 sta vecIRQ_BRK
-                lda #>HandleIrq
+                lda #>irqMain
                 sta vecIRQ_BRK+1
 
 ;   initialize the console
@@ -675,9 +785,9 @@ InitIRQs        .proc
 ;   initialize joystick/keyboard
                 lda #$1F
                 sta InputFlags
-                sta InputFlags+1
+                ; sta InputFlags+1
                 stz InputType           ; =joystick
-                stz InputType+1
+                ; stz InputType+1
 
 ;   disable all IRQ
                 lda #$FF
@@ -701,11 +811,21 @@ InitIRQs        .proc
                 and #~INT00_SOF
                 sta INT_MASK_REG0
 
-;   enable Keyboard IRQ
-                ; lda INT_MASK_REG1
-                ; and #~INT01_VIA1
-                ; sta INT_MASK_REG1
+;   enable Start-of-Line IRQ
+                ;!!lda INT_MASK_REG0
+                ;!!and #~INT00_SOL
+                ;!!sta INT_MASK_REG0
 
+;   enable Keyboard IRQ
+                ;!! lda INT_MASK_REG1
+                ;!! and #~INT01_VIA1
+                ;!! sta INT_MASK_REG1
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
+
+                cli                     ; enable IRQ
                 pla
                 rts
                 .endproc
@@ -723,6 +843,10 @@ SetFont         .proc
 
 ;   DEBUG: helpful if you need to see the trace
                 ; bra _XIT
+
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
 
 ;   switch to charset map
                 lda #iopPage1
@@ -755,8 +879,9 @@ _next1          lda (zpSource),Y
                 dex
                 bne _nextPage
 
-;   switch to system map
-                stz IOPAGE_CTRL
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
 
 _XIT            ply
                 plx
