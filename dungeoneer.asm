@@ -16,6 +16,10 @@
 ;--------------------------------------
 
 START
+                stz BACKGROUND_COLOR_R
+                stz BACKGROUND_COLOR_G
+                stz BACKGROUND_COLOR_B
+
 ;    main setup
                 jsr initialize_zeropage
                 jsr init_screen

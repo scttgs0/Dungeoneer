@@ -1,6 +1,6 @@
 
 ; SPDX-FileName: platform_f256.asm
-; SPDX-FileCopyrightText: Copyright 2023, Scott Giese
+; SPDX-FileCopyrightText: Copyright 2023-2025, Scott Giese
 ; SPDX-License-Identifier: GPL-3.0-or-later
 
 
@@ -122,21 +122,98 @@ Bcd2Bin         .proc
                 pha                     ; n*2
                 lsr
                 lsr                     ; n*8
-                sta zpTemp1
+                sta _tmp
 
                 pla                     ; A=n*2
                 clc
-                adc zpTemp1             ; A=n*8+n*2 := n*10
-                sta zpTemp1
+                adc _tmp                ; A=n*8+n*2 := n*10
+                sta _tmp
 
 ;   add the lower-nibble
                 pla
                 and #$0F
                 clc
-                adc zpTemp1
+                adc _tmp
+
+                rts
+
+;--------------------------------------
+
+_tmp            .byte $00
 
                 .endproc
 
+
+;======================================
+; Convert Binary to BCD
+;======================================
+Bin2Bcd         .proc
+                ldx #00
+                ldy #00
+_next1          cmp #10
+                bcc _done
+
+                sec
+                sbc #10
+
+                inx
+                bra _next1
+
+_done           tay
+                txa
+                asl
+                asl
+                asl
+                asl
+                and #$F0
+                sta _tmp
+
+                tya
+                clc
+                adc _tmp
+
+                rts
+
+;--------------------------------------
+
+_tmp            .byte $00
+
+                .endproc
+
+
+;======================================
+; Convert Binary to Ascii
+;--------------------------------------
+; on entry:
+;   A           byte value
+; on exit:
+;   Y,A         2-byte ascii value
+;======================================
+Bin2Ascii       .proc
+                pha
+
+;   upper-nibble to ascii
+                lsr
+                lsr
+                lsr
+                lsr
+                and #$0F
+                tax
+                ldy _hex,X
+
+;   lower-nibble to ascii
+                pla
+                and #$0F
+                tax
+                lda _hex,X
+
+                rts
+
+;--------------------------------------
+
+_hex            .text '0123456789ABCDEF'
+
+                .endproc
 
 ;======================================
 ; Initialize SID
@@ -169,7 +246,7 @@ _next1          sta SID1_BASE,X
                 sta SID2_ATDCY1
 
                 ; 0%|sidDecay6ms
-                stz SID1_SUREL1         ; Susatain/Release = 0 [square wave]
+                stz SID1_SUREL1         ; Sustain/Release = 0 [square wave]
                 stz SID1_SUREL2
                 stz SID1_SUREL3
                 stz SID2_SUREL1
@@ -334,6 +411,7 @@ InitTiles       .proc
 ;   switch to system map
                 stz IOPAGE_CTRL
 
+;   define the tilesets
                 lda #<tiles             ; Set the source address
                 sta TILESET0_ADDR
                 lda #>tiles
@@ -343,7 +421,7 @@ InitTiles       .proc
 
 ;   enable the tileset, use 8x256 pixel source data layout
                 lda #tsVertical
-                sta TILESET0_ADDR_CFG
+                sta TILESET0_CTRL
 
                 lda #<worldmap          ; Set the source address
                 sta TILE0_ADDR
@@ -352,15 +430,19 @@ InitTiles       .proc
                 lda #`worldmap
                 sta TILE0_ADDR+2
 
-                lda #40                ; Set the size of the tile map to 256x256
+                lda #40                 ; Set the size of the tile map to 40x30
                 sta TILE0_SIZE_X
+                stz TILE0_SIZE_X+1
                 lda #30
                 sta TILE0_SIZE_Y
+                stz TILE0_SIZE_Y+1
 
+                stz TILE0_SCROLL_X+1
                 stz TILE0_SCROLL_X
+                stz TILE0_SCROLL_Y+1
                 stz TILE0_SCROLL_Y
 
-;   enable the tilema, puse 8x8 pixel tiles
+;   enable the tilemap, use 8x8 pixel tiles
                 lda #tcEnable|tcSmallTiles
                 sta TILE0_CTRL
 
@@ -408,6 +490,33 @@ InitSprites     .proc
 
 
 ;======================================
+; Clear all Sprites
+;======================================
+ClearSprites    .proc
+                pha
+
+;   preserve IOPAGE control
+                lda IOPAGE_CTRL
+                pha
+
+;   switch to system map
+                stz IOPAGE_CTRL
+
+                .frsSpriteClear 0
+                .frsSpriteClear 1
+                .frsSpriteClear 2
+                .frsSpriteClear 3
+
+;   restore IOPAGE control
+                pla
+                sta IOPAGE_CTRL
+
+                pla
+                rts
+                .endproc
+
+
+;======================================
 ;
 ;======================================
 InitBitmap      .proc
@@ -420,11 +529,11 @@ InitBitmap      .proc
 ;   switch to system map
                 stz IOPAGE_CTRL
 
-                ;!!lda #<ScreenRAM         ; Set the destination address
+                lda #<ScreenRAM         ; Set the destination address
                 sta BITMAP2_ADDR
-                ;!!lda #>ScreenRAM
+                lda #>ScreenRAM
                 sta BITMAP2_ADDR+1
-                ;!!lda #`ScreenRAM
+                lda #`ScreenRAM
                 sta BITMAP2_ADDR+2
 
                 lda #bmcEnable|bmcLUT0
@@ -432,6 +541,9 @@ InitBitmap      .proc
 
                 lda #locLayer2_BM2
                 sta LAYER_ORDER_CTRL_1
+
+                stz BITMAP0_CTRL        ; disabled
+                stz BITMAP1_CTRL
 
 ;   restore IOPAGE control
                 pla
@@ -448,9 +560,7 @@ InitBitmap      .proc
 ; preserve      A, X, Y
 ;======================================
 ClearScreen     .proc
-v_QtyPages      .var $04                ; 40x30 = $4B0... 4 pages + 176 bytes
-                                        ; remaining 176 bytes cleared via ClearGamePanel
-
+v_QtyPages      .var $05                ; 40x30 = $4B0... 4 pages + 176 bytes
 v_EmptyText     .var $00
 v_TextColor     .var $40
 ;---
@@ -768,10 +878,10 @@ InitIRQs        .proc
                 sei                     ; disable IRQ
 
 ;   enable IRQ handler
-                ; lda #<vecIRQ_BRK
-                ; sta IRQ_PRIOR
-                ; lda #>vecIRQ_BRK
-                ; sta IRQ_PRIOR+1
+                ;lda #<vecIRQ_BRK
+                ;sta IRQ_PRIOR
+                ;lda #>vecIRQ_BRK
+                ;sta IRQ_PRIOR+1
 
                 lda #<irqMain
                 sta vecIRQ_BRK
@@ -865,7 +975,7 @@ FONT0           lda #<GameFont
                 sta zpDest+1
                 stz zpDest+2
 
-                ldx #$07                ; 7 pages
+                ldx #$08                ; 8 pages
 _nextPage       ldy #$00
 _next1          lda (zpSource),Y
                 sta (zpDest),Y
